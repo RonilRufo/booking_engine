@@ -1,0 +1,8 @@
+; -*- mode: conf-windows; -*-
+[flake8]
+; matches black
+max-line-length = 88
+exclude =
+    migrations,
+per-file-ignores =
+    patri/settings/dev.py: F403,F405,F821
