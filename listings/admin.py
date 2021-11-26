@@ -1,15 +1,15 @@
 from django.contrib import admin
 
-from .models import BookingInfo, HotelRoom, HotelRoomType, Listing
+from . import models
 
 
 class HotelRoomTypeInline(admin.StackedInline):
-    model = HotelRoomType
+    model = models.HotelRoomType
     extra = 1
     show_change_link = True
 
 
-@admin.register(Listing)
+@admin.register(models.Listing)
 class ListingAdmin(admin.ModelAdmin):
     inlines = [HotelRoomTypeInline]
     list_display = (
@@ -22,11 +22,11 @@ class ListingAdmin(admin.ModelAdmin):
 
 
 class HotelRoomInline(admin.StackedInline):
-    model = HotelRoom
+    model = models.HotelRoom
     extra = 1
 
 
-@admin.register(HotelRoomType)
+@admin.register(models.HotelRoomType)
 class HotelRoomTypeAdmin(admin.ModelAdmin):
     inlines = [HotelRoomInline]
     list_display = (
@@ -36,11 +36,20 @@ class HotelRoomTypeAdmin(admin.ModelAdmin):
     show_change_link = True
 
 
-@admin.register(HotelRoom)
+@admin.register(models.HotelRoom)
 class HotelRoomAdmin(admin.ModelAdmin):
     list_display = ("room_number",)
 
 
-@admin.register(BookingInfo)
+@admin.register(models.BookingInfo)
 class BookingInfoAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.BookingReservation)
+class BookingReservationAdmin(admin.ModelAdmin):
+    """
+    Admin view for :model:`listings.BookingReservation`
+    """
+
+    list_display = ("booking_info", "start_date", "end_date")
