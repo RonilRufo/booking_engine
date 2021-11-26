@@ -33,10 +33,8 @@ class BookingInfoFilter(filters.FilterSet):
         return queryset.annotate(
             reservations_made=Count(
                 "reservations",
-                filter=Q(
-                    reservations__start_date__gte=value,
-                    reservations__end_date__lte=value,
-                ),
+                filter=Q(reservations__start_date__gte=value)
+                | Q(reservations__end_date__lte=value),
             ),
             total_rooms=Count("hotel_room_type__hotel_rooms"),
             available_rooms=F("total_rooms") - F("reservations_made"),
