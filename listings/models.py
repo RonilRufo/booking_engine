@@ -100,5 +100,5 @@ class BookingReservation(models.Model):
 
     class Meta:
         verbose_name = _("Booking Reservation")
-        verbose_name = _("Booking Reservations")
+        verbose_name_plural = _("Booking Reservations")
         ordering = ("end_date", "start_date")
