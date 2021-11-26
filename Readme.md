@@ -46,7 +46,7 @@ For covering more test cases we are going to need at least one hotel with 3 Hote
 
 - Second with price=60 (below max_price) with blocked day insde the search criteria for one out of few rooms
 
-- Third with price 200 (above max_price) 
+- Third with price 200 (above max_price)
 
 
 ## Request example:

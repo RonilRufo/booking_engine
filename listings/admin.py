@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Listing, HotelRoomType, HotelRoom, BookingInfo
+from .models import BookingInfo, HotelRoom, HotelRoomType, Listing
 
 
 class HotelRoomTypeInline(admin.StackedInline):
@@ -8,32 +8,37 @@ class HotelRoomTypeInline(admin.StackedInline):
     extra = 1
     show_change_link = True
 
+
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
     inlines = [HotelRoomTypeInline]
     list_display = (
-        'title',
-        'listing_type',
-        'country',
-        'city',
+        "title",
+        "listing_type",
+        "country",
+        "city",
     )
-    list_filter = ('listing_type',)
+    list_filter = ("listing_type",)
 
 
 class HotelRoomInline(admin.StackedInline):
     model = HotelRoom
-    extra = 1    
+    extra = 1
+
 
 @admin.register(HotelRoomType)
 class HotelRoomTypeAdmin(admin.ModelAdmin):
     inlines = [HotelRoomInline]
-    list_display = ('hotel', 'title',)
+    list_display = (
+        "hotel",
+        "title",
+    )
     show_change_link = True
 
 
 @admin.register(HotelRoom)
 class HotelRoomAdmin(admin.ModelAdmin):
-    list_display = ('room_number',)
+    list_display = ("room_number",)
 
 
 @admin.register(BookingInfo)
