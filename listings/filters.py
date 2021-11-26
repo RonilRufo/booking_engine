@@ -13,8 +13,8 @@ class BookingInfoFilter(filters.FilterSet):
     """
 
     max_price = filters.NumberFilter(field_name="price", lookup_expr="lte")
-    check_in = filters.DateFilter(method_name="filter_check_in")
-    check_out = filters.DateFilter(method_name="filter_check_out")
+    check_in = filters.DateFilter(method="filter_check_in")
+    check_out = filters.DateFilter(method="filter_check_out")
 
     class Meta:
         model = BookingInfo
