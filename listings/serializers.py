@@ -4,21 +4,6 @@ from . import models
 from .mixins import RepresentationMixin
 
 
-class HotelRoomTypeSerializer(serializers.ModelSerializer):
-    """
-    Serializer class for :model:`listings.HotelRoomType`
-    """
-
-    class Meta:
-        model = models.HotelRoomType
-        fields = (
-            "id",
-            "hotel",
-            "title",
-        )
-        read_only_fields = ("id",)
-
-
 class ListingSerializer(serializers.ModelSerializer):
     """
     Serializer class for :model:`listings.Listing`
@@ -34,6 +19,27 @@ class ListingSerializer(serializers.ModelSerializer):
             "city",
         )
         read_only_fields = ("id",)
+
+
+class HotelRoomTypeSerializer(RepresentationMixin, serializers.ModelSerializer):
+    """
+    Serializer class for :model:`listings.HotelRoomType`
+    """
+
+    class Meta:
+        model = models.HotelRoomType
+        fields = (
+            "id",
+            "hotel",
+            "title",
+        )
+        read_only_fields = ("id",)
+        nested_serializers = [
+            {
+                "field": "hotel",
+                "serializer_class": ListingSerializer,
+            }
+        ]
 
 
 class BookingInfoSerializer(RepresentationMixin, serializers.ModelSerializer):
