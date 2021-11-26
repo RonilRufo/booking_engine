@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class Listing(models.Model):
@@ -82,3 +83,22 @@ class BookingInfo(models.Model):
             obj = self.hotel_room_type
 
         return f"{obj} {self.price}"
+
+
+class BookingReservation(models.Model):
+    """
+    Stores blocked/reserved days for a listing.
+    """
+
+    booking_info = models.ForeignKey(
+        "listings.BookingInfo",
+        related_name="reservations",
+        on_delete=models.CASCADE,
+    )
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    class Meta:
+        verbose_name = _("Booking Reservation")
+        verbose_name = _("Booking Reservations")
+        ordering = ("end_date", "start_date")
