@@ -18,7 +18,11 @@ class BookingInfoFilter(filters.FilterSet):
 
     class Meta:
         model = BookingInfo
-        fields = ("max_price",)
+        fields = (
+            "max_price",
+            "check_in",
+            "check_out",
+        )
 
     def check_in_and_check_out_filters(
         self, queryset: Union[QuerySet, List[BookingInfo]], value: datetime.date
