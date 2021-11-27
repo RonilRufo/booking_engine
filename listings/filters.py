@@ -1,7 +1,7 @@
 import datetime
 from typing import List, Union
 
-from django.db.models import Count, F, Q, QuerySet
+from django.db.models import Case, Count, F, IntegerField, Q, QuerySet, Value, When
 from django.utils.translation import gettext_lazy as _
 from django_filters import rest_framework as filters
 from rest_framework import serializers
@@ -38,7 +38,18 @@ class BookingInfoFilter(filters.FilterSet):
                 filter=Q(reservations__start_date__gte=value)
                 | Q(reservations__end_date__lte=value),
             ),
-            total_rooms=Count("hotel_room_type__hotel_rooms"),
+            total_rooms=Case(
+                When(
+                    listing__isnull=False,  # For apartment bookings
+                    then=Value(1),
+                ),
+                When(
+                    hotel_room_type__isnull=False,  # For hotel bookings
+                    then=Count("hotel_room_type__hotel_rooms"),
+                ),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
             available_rooms=F("total_rooms") - F("reservations_made"),
         ).filter(available_rooms__gt=0)
 
