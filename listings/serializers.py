@@ -1,5 +1,6 @@
-from typing import Dict
+from typing import Dict, List, Union
 
+from django.db.models import Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
@@ -125,12 +126,51 @@ class BookingReservationSerializer(RepresentationMixin, serializers.ModelSeriali
 
     def validate(self, data: Dict) -> Dict:
         """
-        Custom validation to check for valid start_date and end_date values.
-        `start_date` must not be later than `end_date`.
+        Custom validation to check for valid start_date and end_date values along with
+        room availability.
         """
+        # start date must not be later than end date
         if data.get("start_date") > data.get("end_date"):
             raise serializers.ValidationError(
                 _("start_date must not be later than end_date.")
+            )
+
+        # Check room availability
+        booking_info = data.get("booking_info")
+        overlapping_reservations: Union[
+            QuerySet, List[models.BookingReservation]
+        ] = booking_info.reservations.filter(
+            Q(
+                start_date__lte=data.get("start_date"),
+                end_date__gte=data.get("start_date"),
+            )
+            | Q(
+                start_date__lte=data.get("end_date"),
+                end_date__gte=data.get("end_date"),
+            )
+            | Q(
+                start_date__gte=data.get("start_date"),
+                end_date__lte=data.get("end_date"),
+            )
+            | Q(
+                start_date__lte=data.get("start_date"),
+                end_date__gte=data.get("end_date"),
+            )
+        ).distinct()
+
+        total_rooms = (
+            1
+            if booking_info.listing
+            else booking_info.hotel_room_type.hotel_rooms.count()
+        )
+        available_rooms = total_rooms - overlapping_reservations.count()
+
+        if available_rooms <= 0:
+            raise serializers.ValidationError(
+                _(
+                    "Rooms are fully booked for the specified date range. Please try a "
+                    "different date range."
+                )
             )
 
         return data
