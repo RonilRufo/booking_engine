@@ -330,3 +330,28 @@ class BookingInfoTests(ListingsTestMixin, APITestCase):
         url = reverse("units-list")
         response = self.client.get(f"{url}?{query_params}")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class BookingInfoModelTests(ListingsTestMixin, APITestCase):
+    """
+    Test cases for :model:`listings.BookingInfo`
+    """
+
+    def test_booking_info_apartment_str(self):
+        """
+        Test __str__ method for apartment type booking info.
+        """
+        apartment = self.create_listing(listing_type=Listing.APARTMENT)
+        booking = self.create_booking_info(listing=apartment)
+
+        self.assertEqual(f"{str(apartment)} {booking.price}", str(booking))
+
+    def test_booking_info_hotel_str(self):
+        """
+        Test __str__ method for hotel type booking info.
+        """
+        hotel = self.create_listing(listing_type=Listing.HOTEL)
+        hotel_room_type = self.create_hotel_room_type(hotel=hotel)
+        booking = self.create_booking_info(hotel_room_type=hotel_room_type)
+
+        self.assertEqual(f"{str(hotel_room_type)} {booking.price}", str(booking))
