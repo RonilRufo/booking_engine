@@ -19,16 +19,12 @@ class ListingsTestMixin:
         self.fake = Faker()
         super(ListingsTestMixin, self).__init__(*args, **kwargs)
 
-    def create_listing(self, **kwargs) -> models.Listing:
+    def create_listing(self, listing_type: str, **kwargs) -> models.Listing:
         """
         Creates an instance of :model:`listings.Listing` with dummy data.
         """
         if "title" not in kwargs:
             kwargs.update({"title": self.fake.name()})
-
-        if "listing_type" not in kwargs:
-            choices = [choice[0] for choice in models.Listing.LISTING_TYPE_CHOICES]
-            kwargs.update({"listing_type": random.choice(choices)})
 
         if "country" not in kwargs:
             kwargs.update({"country": self.fake.country()})
@@ -36,7 +32,7 @@ class ListingsTestMixin:
         if "city" not in kwargs:
             kwargs.update({"city": self.fake.city()})
 
-        return ListingFactory.create(**kwargs)
+        return ListingFactory.create(listing_type=listing_type, **kwargs)
 
     def create_hotel_room_type(self, **kwargs) -> models.HotelRoomType:
         """
@@ -52,17 +48,16 @@ class ListingsTestMixin:
 
         return HotelRoomTypeFactory.create(**kwargs)
 
-    def create_hotel_room(self, **kwargs) -> models.HotelRoom:
+    def create_hotel_room(
+        self, hotel_room_type: models.HotelRoomType, **kwargs
+    ) -> models.HotelRoom:
         """
         Creates an instance of :model:`listings.HotelRoom` with dummy data.
         """
-        if "hotel_room_type" not in kwargs:
-            kwargs.update({"hotel_room_type": self.create_hotel_room_type()})
-
         if "room_number" not in kwargs:
             kwargs.update({"room_number": random.randint(100, 999)})
 
-        return HotelRoomFactory.create(**kwargs)
+        return HotelRoomFactory.create(hotel_room_type=hotel_room_type, **kwargs)
 
     def create_booking_info(self, **kwargs) -> models.BookingInfo:
         """
