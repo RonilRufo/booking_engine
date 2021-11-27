@@ -83,3 +83,19 @@ http://localhost:8000/api/v1/units/?max_price=100&check_in=2021-12-09&check_out=
             },
         ]
     }
+
+
+## Running Tests
+
+1. Tests can be executed by using `coverage` with `pytest`:
+    ```
+    coverage run --omit="*migrations*" -m pytest
+    ```
+    To check the percentage coverage of the tests, run the following command right after executing the above command:
+    ```
+    coverage report -m
+    ```
+2. You can also use the regular test command:
+    ```
+    python manage.py test
+    ```
