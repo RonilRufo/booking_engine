@@ -20,7 +20,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 
-from listings.views import BookingInfoViewSet
+from listings.views import BookingInfoViewSet, BookingReservationViewSet
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -37,6 +37,7 @@ schema_view = get_schema_view(
 
 router = DefaultRouter()
 router.register(r"units", BookingInfoViewSet, basename="units")
+router.register(r"reservations", BookingReservationViewSet, basename="reservations")
 
 
 urlpatterns = [
