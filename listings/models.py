@@ -56,7 +56,7 @@ class HotelRoom(models.Model):
     )
 
     def __str__(self):
-        return self.room_number
+        return f"{self.room_number}"
 
 
 class BookingInfo(models.Model):
