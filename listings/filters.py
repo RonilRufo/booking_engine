@@ -2,7 +2,9 @@ import datetime
 from typing import List, Union
 
 from django.db.models import Count, F, Q, QuerySet
+from django.utils.translation import gettext_lazy as _
 from django_filters import rest_framework as filters
+from rest_framework import serializers
 
 from .models import BookingInfo
 
@@ -57,3 +59,31 @@ class BookingInfoFilter(filters.FilterSet):
             queryset = self.check_in_and_check_out_filters(queryset, value)
 
         return queryset
+
+    def filter_queryset(self, queryset):
+        """
+        Executes the filtering in the queryset but with an additional validation for
+        check_in and check_out fields.
+        """
+        if "check_in" in self.request.GET and "check_out" not in self.request.GET:
+            raise serializers.ValidationError(_("Please provide check_out value."))
+
+        if "check_out" in self.request.GET and "check_in" not in self.request.GET:
+            raise serializers.ValidationError(_("Please provide check_in value."))
+
+        # Validate check in and check out values. Check in date must not be later than
+        # check out date.
+        if "check_in" in self.request.GET and "check_out" in self.request.GET:
+            check_in = datetime.datetime.strptime(
+                self.request.GET.get("check_in"), "%Y-%m-%d"
+            )
+            check_out = datetime.datetime.strptime(
+                self.request.GET.get("check_out"), "%Y-%m-%d"
+            )
+
+            if check_in > check_out:
+                raise serializers.ValidationError(
+                    _("Check in date must not be later than check out date.")
+                )
+
+        return super().filter_queryset(queryset)
