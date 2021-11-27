@@ -1,3 +1,6 @@
+from typing import Dict
+
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from . import models
@@ -119,3 +122,15 @@ class BookingReservationSerializer(RepresentationMixin, serializers.ModelSeriali
             "end_date",
         )
         read_only_fields = ("id",)
+
+    def validate(self, data: Dict) -> Dict:
+        """
+        Custom validation to check for valid start_date and end_date values.
+        `start_date` must not be later than `end_date`.
+        """
+        if data.get("start_date") > data.get("end_date"):
+            raise serializers.ValidationError(
+                _("start_date must not be later than end_date.")
+            )
+
+        return data
