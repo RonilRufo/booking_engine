@@ -47,11 +47,20 @@ class BookingInfoSerializer(RepresentationMixin, serializers.ModelSerializer):
     Serializer class for :model:`listings.BookingInfo`
     """
 
+    title = serializers.SerializerMethodField()
+    listing_type = serializers.SerializerMethodField()
+    country = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
+
     class Meta:
         model = models.BookingInfo
         fields = (
             "id",
             "listing",
+            "title",
+            "listing_type",
+            "country",
+            "city",
             "hotel_room_type",
             "price",
         )
@@ -66,6 +75,34 @@ class BookingInfoSerializer(RepresentationMixin, serializers.ModelSerializer):
                 "serializer_class": HotelRoomTypeSerializer,
             },
         ]
+
+    def get_title(self, obj: models.BookingInfo) -> str:
+        """
+        Returns the title of the related listing/hotel room type for this instance.
+        """
+        return obj.listing.title if obj.listing else str(obj.hotel_room_type)
+
+    def get_listing_type(self, obj: models.BookingInfo) -> str:
+        """
+        Returns whether this instance is a Hotel or an Apartment.
+        """
+        return (
+            models.Listing.APARTMENT.title()
+            if obj.listing
+            else models.Listing.HOTEL.title()
+        )
+
+    def get_country(self, obj: models.BookingInfo) -> str:
+        """
+        Returns the country of the related base listing for this instance.
+        """
+        return obj.listing.country if obj.listing else obj.hotel_room_type.hotel.country
+
+    def get_city(self, obj: models.BookingInfo) -> str:
+        """
+        Returns the city of the related base listing for this instance.
+        """
+        return obj.listing.city if obj.listing else obj.hotel_room_type.hotel.city
 
 
 class BookingReservationSerializer(RepresentationMixin, serializers.ModelSerializer):
