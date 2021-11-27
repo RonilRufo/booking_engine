@@ -26,18 +26,54 @@ class BookingInfoFilter(filters.FilterSet):
             "check_out",
         )
 
-    def check_in_and_check_out_filters(
-        self, queryset: Union[QuerySet, List[BookingInfo]], value: datetime.date
+    def filter_check_in(self, queryset, name, value):
+        """
+        Unused in favor of `filter_check_in_and_check_out_bookings`.
+        """
+        return queryset
+
+    def filter_check_out(self, queryset, name, value):
+        """
+        Unused in favor of `filter_check_in_and_check_out_bookings`.
+        """
+        return queryset
+
+    def filter_check_in_and_check_out_bookings(
+        self,
+        queryset: Union[QuerySet, List[BookingInfo]],
+        check_in: datetime.date,
+        check_out: datetime.date,
     ) -> Union[QuerySet, List[BookingInfo]]:
         """
-        Handles the filtering of check in and checkout dates for bookings.
+        Returns queryset based on whether rooms/apartments are available on a given
+        check in / check out range.
         """
         return queryset.annotate(
+            # Get all reservations that overlap the given check in and check out dates.
             reservations_made=Count(
                 "reservations",
-                filter=Q(reservations__start_date__gte=value)
-                | Q(reservations__end_date__lte=value),
+                filter=(
+                    Q(
+                        reservations__start_date__lte=check_in,
+                        reservations__end_date__gte=check_in,
+                    )
+                    | Q(
+                        reservations__start_date__lte=check_out,
+                        reservations__end_date__gte=check_out,
+                    )
+                    | Q(
+                        reservations__start_date__gte=check_in,
+                        reservations__end_date__lte=check_out,
+                    )
+                    | Q(
+                        reservations__start_date__lte=check_in,
+                        reservations__end_date__gte=check_out,
+                    )
+                ),
+                distinct=True,
             ),
+            # Get the total rooms for each listing. Hotel rooms count for hotels while
+            # apartments always return 1.
             total_rooms=Case(
                 When(
                     listing__isnull=False,  # For apartment bookings
@@ -45,31 +81,13 @@ class BookingInfoFilter(filters.FilterSet):
                 ),
                 When(
                     hotel_room_type__isnull=False,  # For hotel bookings
-                    then=Count("hotel_room_type__hotel_rooms"),
+                    then=Count("hotel_room_type__hotel_rooms", distinct=True),
                 ),
                 default=Value(0),
                 output_field=IntegerField(),
             ),
             available_rooms=F("total_rooms") - F("reservations_made"),
         ).filter(available_rooms__gt=0)
-
-    def filter_check_in(self, queryset, name, value):
-        """
-        Filters all listings that are available for the specified check in date.
-        """
-        if value is not None:
-            queryset = self.check_in_and_check_out_filters(queryset, value)
-
-        return queryset
-
-    def filter_check_out(self, queryset, name, value):
-        """
-        Filters all listings that are available for the specified check out date.
-        """
-        if value is not None:
-            queryset = self.check_in_and_check_out_filters(queryset, value)
-
-        return queryset
 
     def filter_queryset(self, queryset):
         """
@@ -96,5 +114,15 @@ class BookingInfoFilter(filters.FilterSet):
                 raise serializers.ValidationError(
                     _("Check in date must not be later than check out date.")
                 )
+
+            # NOTE: By default, filtering is done on each field separately. We can't do
+            # that for check in and check out date range. We need both fields to
+            # properly filter the reservations made. Hence, the implementation of this
+            # custom filter method.
+            queryset = self.filter_check_in_and_check_out_bookings(
+                queryset,
+                check_in,
+                check_out,
+            )
 
         return super().filter_queryset(queryset)
