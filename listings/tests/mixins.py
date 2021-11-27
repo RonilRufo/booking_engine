@@ -94,9 +94,8 @@ class ListingsTestMixin:
             kwargs.update(
                 {
                     "start_date": (
-                        timezone.now()
-                        + relativedelta(days=random.randint(1, 30)).date()
-                    )
+                        timezone.now() + relativedelta(days=random.randint(1, 30))
+                    ).date()
                 }
             )
 

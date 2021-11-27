@@ -35,7 +35,6 @@ class BookingInfoFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "listings.BookingInfo"
-        django_get_or_create = ("listing", "hotel_room_type")
 
 
 class BookingReservationFactory(factory.django.DjangoModelFactory):
