@@ -32,9 +32,11 @@ class BookingInfoTests(ListingsTestMixin, APITestCase):
         """
         Test successful response in retrieving a list of available units.
         """
-        units = [self.create_booking_info() for _ in range(random.randint(3, 7))]
+        units: List[BookingInfo] = [
+            self.create_booking_info() for _ in range(random.randint(3, 7))
+        ]
 
-        url = reverse("units-list")
+        url: str = reverse("units-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(units), len(response.data))
@@ -56,7 +58,7 @@ class BookingInfoTests(ListingsTestMixin, APITestCase):
         """
         Test successful response in filtering units by `max_price` in the list endpoint.
         """
-        max_price = 100
+        max_price: int = 100
         below_max_price_units: List[BookingInfo] = [
             self.create_booking_info(price=random.randint(20, 100))
             for _ in range(random.randint(3, 9))
@@ -66,8 +68,8 @@ class BookingInfoTests(ListingsTestMixin, APITestCase):
         # Create units/booking info instance with prices above max_price
         [self.create_booking_info(price=max_price + 1) for _ in range(2, 5)]
 
-        query_params = urllib.parse.urlencode({"max_price": max_price})
-        url = reverse("units-list")
+        query_params: str = urllib.parse.urlencode({"max_price": max_price})
+        url: str = reverse("units-list")
         response = self.client.get(f"{url}?{query_params}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(below_max_price_units), len(response.data))
@@ -154,16 +156,16 @@ class BookingInfoTests(ListingsTestMixin, APITestCase):
             end_date=check_out + relativedelta(days=2),
         )
 
-        query_params = urllib.parse.urlencode(
+        query_params: str = urllib.parse.urlencode(
             {
                 "check_in": check_in.strftime("%Y-%m-%d"),
                 "check_out": check_out.strftime("%Y-%m-%d"),
             }
         )
-        url = reverse("units-list")
+        url: str = reverse("units-list")
         response = self.client.get(f"{url}?{query_params}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        unit_ids = [unit["id"] for unit in response.data]
+        unit_ids: List[int] = [unit["id"] for unit in response.data]
         self.assertNotIn(booked_apartment_booking.id, unit_ids)
         self.assertIn(available_apartment_booking.id, unit_ids)
         self.assertIn(five_star_single_booking.id, unit_ids)
@@ -261,17 +263,17 @@ class BookingInfoTests(ListingsTestMixin, APITestCase):
             price=200,
         )
 
-        query_params = urllib.parse.urlencode(
+        query_params: str = urllib.parse.urlencode(
             {
                 "max_price": 100,
                 "check_in": check_in.strftime("%Y-%m-%d"),
                 "check_out": check_out.strftime("%Y-%m-%d"),
             }
         )
-        url = reverse("units-list")
+        url: str = reverse("units-list")
         response = self.client.get(f"{url}?{query_params}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        unit_ids = [unit["id"] for unit in response.data]
+        unit_ids: List[int] = [unit["id"] for unit in response.data]
 
         # Suite rooms are priced at 200 which is over the max_price. It should not be
         # available.
@@ -292,10 +294,10 @@ class BookingInfoTests(ListingsTestMixin, APITestCase):
         """
         now = timezone.now().date()
         check_in = now + relativedelta(days=3)
-        query_params = urllib.parse.urlencode(
+        query_params: str = urllib.parse.urlencode(
             {"check_in": check_in.strftime("%Y-%m-%d")}
         )
-        url = reverse("units-list")
+        url: str = reverse("units-list")
         response = self.client.get(f"{url}?{query_params}")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -306,10 +308,10 @@ class BookingInfoTests(ListingsTestMixin, APITestCase):
         """
         now = timezone.now().date()
         check_out = now + relativedelta(days=3)
-        query_params = urllib.parse.urlencode(
+        query_params: str = urllib.parse.urlencode(
             {"check_out": check_out.strftime("%Y-%m-%d")}
         )
-        url = reverse("units-list")
+        url: str = reverse("units-list")
         response = self.client.get(f"{url}?{query_params}")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -321,13 +323,13 @@ class BookingInfoTests(ListingsTestMixin, APITestCase):
         now = timezone.now().date()
         check_in = now + relativedelta(days=3)
         check_out = check_in - relativedelta(days=1)
-        query_params = urllib.parse.urlencode(
+        query_params: str = urllib.parse.urlencode(
             {
                 "check_in": check_in.strftime("%Y-%m-%d"),
                 "check_out": check_out.strftime("%Y-%m-%d"),
             }
         )
-        url = reverse("units-list")
+        url: str = reverse("units-list")
         response = self.client.get(f"{url}?{query_params}")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

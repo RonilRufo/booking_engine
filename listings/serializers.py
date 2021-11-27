@@ -136,7 +136,7 @@ class BookingReservationSerializer(RepresentationMixin, serializers.ModelSeriali
             )
 
         # Check room availability
-        booking_info = data.get("booking_info")
+        booking_info: models.BookingInfo = data.get("booking_info")
         overlapping_reservations: Union[
             QuerySet, List[models.BookingReservation]
         ] = booking_info.reservations.filter(
@@ -158,12 +158,12 @@ class BookingReservationSerializer(RepresentationMixin, serializers.ModelSeriali
             )
         ).distinct()
 
-        total_rooms = (
+        total_rooms: int = (
             1
             if booking_info.listing
             else booking_info.hotel_room_type.hotel_rooms.count()
         )
-        available_rooms = total_rooms - overlapping_reservations.count()
+        available_rooms: int = total_rooms - overlapping_reservations.count()
 
         if available_rooms <= 0:
             raise serializers.ValidationError(
