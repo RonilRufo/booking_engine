@@ -31,6 +31,24 @@ class BookingReservationTests(ListingsTestMixin, APITestCase):
         response = self.client.post(url, payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_booking_reservation_invalid_date_range(self):
+        """
+        Test raising ValidationError when creating a reservation when the provided
+        start_date is later than the end_date.
+        """
+        booking_info = self.create_booking_info()
+        start_date = (timezone.now() + relativedelta(days=3)).date()
+        end_date = start_date - relativedelta(days=2)
+        payload = {
+            "booking_info": booking_info.id,
+            "start_date": start_date.strftime("%Y-%m-%d"),
+            "end_date": end_date.strftime("%Y-%m-%d"),
+        }
+
+        url = reverse("reservations-list")
+        response = self.client.post(url, payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_retrieve_booking_reservation_detail(self):
         """
         Test successful response in retrieving a single booking reservation.
