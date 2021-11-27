@@ -100,3 +100,7 @@ http://localhost:8000/api/v1/units/?max_price=100&check_in=2021-12-09&check_out=
     ```
     python manage.py test
     ```
+
+## API Documentation and Playground URL
+
+http://localhost:8000/swagger/
