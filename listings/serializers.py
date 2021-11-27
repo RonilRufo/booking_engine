@@ -66,3 +66,19 @@ class BookingInfoSerializer(RepresentationMixin, serializers.ModelSerializer):
                 "serializer_class": HotelRoomTypeSerializer,
             },
         ]
+
+
+class BookingReservationSerializer(RepresentationMixin, serializers.ModelSerializer):
+    """
+    Serializer class for :model:`listings.BookingReservation`
+    """
+
+    class Meta:
+        model = models.BookingReservation
+        fields = (
+            "id",
+            "booking_info",
+            "start_date",
+            "end_date",
+        )
+        read_only_fields = ("id",)
